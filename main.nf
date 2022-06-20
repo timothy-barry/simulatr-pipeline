@@ -55,9 +55,11 @@ method_cross_data_ch = flat_data_ch.combine(method_names_ch)
 
 // Fourth, run invoke the methods on the data
 process run_method {
-  clusterOptions "${if (task.attempt == 1) "-q short.q" else ""}" + "-l m_mem_free=5G -o \$HOME/output/\'\$JOB_NAME-\$JOB_ID-\$TASK_ID.log\'"
+  clusterOptions "-q short.q -o \$HOME/output/\'\$JOB_NAME-\$JOB_ID-\$TASK_ID.log\' " 
   errorStrategy { task.exitStatus == 137 ? 'retry' : 'terminate' }
   maxRetries 1
+
+  tag "method: $method; grid row: $i"
 
   input:
   tuple val(grid_row), path('data_list.rds'), val(method) from method_cross_data_ch

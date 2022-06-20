@@ -109,7 +109,7 @@ workflow run_simulation_on_chunk {
     combine_results(current_results, run_method.out.raw_results_ch.collect())
 
     // 6. Delete data lists to clear up disk space
-    //delete_work_files(combine_results.out.flag_ch)
+    delete_work_files(combine_results.out.flag_ch)
 
   emit:
     combine_results.out.collected_results_ch

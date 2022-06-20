@@ -3,11 +3,21 @@ library(simulatr)
 
 args <- commandArgs(trailingOnly = TRUE)
 simulatr_spec <- readRDS(args[1])
+curr_results <- readRDS(args[2])
+chunk_size <- as.integer(args[3])
 method_names <- names(simulatr_spec@run_method_functions)
+
 
 # extract relevant row IDs
 n_row <- nrow(simulatr_spec@parameter_grid)
-grid_ids <- seq(1, n_row)
+if (is.null(curr_results)) {
+  grid_ids <- seq(1, chunk_size)
+} else {
+  finished_grid_rows <- curr_results |>
+    dplyr::pull(grid_row_id) |> as.character() |> as.integer()
+  max_finished_row <- max(finished_grid_rows)
+  grid_ids <- seq(max_finished_row + 1L, min(max_finished_row + chunk_size, n_row))
+}
 
 # write row_idxs and method_names to separate files; convert both to Nextflow chanels.
 write_vector <- function(file_name, vector) {

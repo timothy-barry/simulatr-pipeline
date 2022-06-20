@@ -2,7 +2,7 @@
 params.result_name_file_name = "simulatr_result.rds"
 params.B = 0
 
-println "$workflow.workDir"
+println params.simulatr_specifier_fp
 
 // First, obtain basic info, including method names and grid IDs
 process obtain_basic_info {

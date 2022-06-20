@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+library(simulatr)
 
 args <- commandArgs(trailingOnly = TRUE)
 simulatr_spec <- readRDS(args[1])

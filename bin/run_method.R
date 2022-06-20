@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
+library(simulatr)
 
 # accept command line arguments, load simulatr_specifier
 args <- commandArgs(trailingOnly = TRUE)
-library(simulatr)
 simulatr_spec <- readRDS(args[1])
 data_list_obj <- readRDS(args[2])
 method <- args[3]

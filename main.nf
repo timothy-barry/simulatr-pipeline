@@ -4,8 +4,11 @@ params.B = 0
 
 println params.simulatr_specifier_fp
 
+
 // First, obtain basic info, including method names and grid IDs
 process obtain_basic_info {
+  clusterOptions "-q short.q -o \$HOME/output/\'\$JOB_NAME-\$JOB_ID-\$TASK_ID.log\' "
+
   input:
   path simulatr_specifier_fp from params.simulatr_specifier_fp
 
@@ -20,8 +23,13 @@ process obtain_basic_info {
 method_names_ch = method_names_raw_ch.splitText().map{it.trim()}
 grid_ids_ch = grid_ids_raw_ch.splitText().splitText().map{it.trim()}
 
+
 // Second, generate the data across different processors
 process generate_data {
+  clusterOptions "-q short.q -l m_mem_free=${task.attempt * 20}G -o \$HOME/output/\'\$JOB_NAME-\$JOB_ID-\$TASK_ID.log\' "
+  errorStrategy { task.exitStatus == 137 ? 'retry' : 'terminate' }
+  maxRetries 2
+
   input:
   val i from grid_ids_ch
   path simulatr_specifier_fp from params.simulatr_specifier_fp
@@ -47,6 +55,10 @@ method_cross_data_ch = flat_data_ch.combine(method_names_ch)
 
 // Fourth, run invoke the methods on the data
 process run_method {
+  clusterOptions "-l m_mem_free=5G -o \$HOME/output/\'\$JOB_NAME-\$JOB_ID-\$TASK_ID.log\'" + "${if (task.attempt == 1) "-q short.q" else ""}"
+  errorStrategy { task.exitStatus == 137 ? 'retry' : 'terminate' }
+  maxRetries 1
+
   input:
   tuple val(grid_row), path('data_list.rds'), val(method) from method_cross_data_ch
   path simulatr_specifier_fp from params.simulatr_specifier_fp
@@ -63,6 +75,7 @@ process run_method {
 // Fifth combine results
 process combine_results {
   publishDir params.result_dir, mode: "copy"
+  clusterOptions "-q short.q -o \$HOME/output/\'\$JOB_NAME-\$JOB_ID-\$TASK_ID.log\' "
 
   output:
   file "$params.result_file_name" into collected_results_ch

@@ -77,6 +77,7 @@ process combine_results {
 }
 
 
+/*
 // Fifth, delete the data lists
 process delete_work_files {
   echo true
@@ -88,3 +89,4 @@ process delete_work_files {
   find $workflow.workDir -name "data_list_*" -delete
   """
 }
+*/

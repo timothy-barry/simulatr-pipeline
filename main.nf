@@ -44,13 +44,7 @@ process generate_data {
 
 
 // Third, create the channel to pass to the methods process
-def my_spread(l) {
-  key = l[0]
-  vals = l[1]
-  return vals.collect {[ key, it ]}
-}
-flat_data_ch = data_ch.flatMap{my_spread(it)}
-method_cross_data_ch = flat_data_ch.combine(method_names_ch)
+method_cross_data_ch = data_ch.transpose().combine(method_names_ch)
 
 
 // Fourth, run invoke the methods on the data

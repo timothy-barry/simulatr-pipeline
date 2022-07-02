@@ -49,7 +49,7 @@ method_cross_data_ch = data_ch.transpose().combine(method_names_ch)
 
 // Fourth, run invoke the methods on the data
 process run_method {
-  clusterOptions "-q short.q -l m_mem_free=8G -o \$HOME/output/\'\$JOB_NAME-\$JOB_ID-\$TASK_ID.log\' "
+  clusterOptions "-q short.q -l m_mem_free=16G -o \$HOME/output/\'\$JOB_NAME-\$JOB_ID-\$TASK_ID.log\' "
 
   tag "method: $method; grid row: $grid_row"
 

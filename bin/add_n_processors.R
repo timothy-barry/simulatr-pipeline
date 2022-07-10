@@ -50,7 +50,7 @@ n_processors_df <- dplyr::inner_join(
 
 # add this information to new simulatr specifier object
 new_parameter_grid <- simulatr_spec@parameter_grid |>
-  dplyr::select(-n_processors) |>
+  dplyr::select(-dplyr::any_of("n_processors")) |>
   dplyr::mutate(row_idx = dplyr::row_number()) |>
   dplyr::left_join(n_processors_df, by = "row_idx") |>
   dplyr::select(-row_idx)

@@ -14,13 +14,14 @@ data_generator <- simulatr_spec@generate_data_function
 out <- setup_script(simulatr_spec, B_in, data_generator, row_idx)
 simulatr_spec <- out$simulatr_spec
 ordered_args <- out$ordered_args
+B <- out$simulatr_spec@fixed_parameters$B
 
 # split data_list into n_processors equally sized chunks
 n_processors <- get_param_from_simulatr_spec(simulatr_spec, row_idx, "n_processors")
 if(n_processors > 1){
-  cuts <- cut(seq(1, B_in), n_processors)
+  cuts <- cut(seq(1, B), n_processors)
 } else{
-  cuts <- factor(rep("all_data", B_in))
+  cuts <- factor(rep("all_data", B))
 }
 l_cuts <- levels(cuts)
 for (i in seq(1, n_processors)) {

@@ -23,10 +23,11 @@ if (data_generator@loop) {
 } else {
   data_list <- do.call(data_generator@f, ordered_args)
 })[["elapsed"]]/B_in
+to_save_object <- list(data_list = data_list, row_idx = row_idx) # unfortunately requires copying the data
 bytes <- get_memory_used()/B_in
 
 # save the data
-saveRDS(list(data_list = data_list, row_idx = row_idx), "data_benchmark.rds")
+saveRDS(to_save_object, "data_benchmark.rds")
 
 # save the benchmarking information
 saveRDS(data.frame(row_idx = row_idx, seconds = seconds, bytes = bytes), "data_benchmarking_info.rds")

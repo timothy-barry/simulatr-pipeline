@@ -56,6 +56,7 @@ new_parameter_grid <- simulatr_spec@parameter_grid |>
   dplyr::select(-row_idx)
 new_simulatr_spec <- simulatr_spec
 new_simulatr_spec@parameter_grid <- new_parameter_grid
+new_simulatr_spec@fixed_parameters$n_processors = NULL
 
 # save the new simulatr specifier object
 sim_string <- sub('\\.rds$', '', simulatr_spec_name)

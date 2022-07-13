@@ -9,6 +9,9 @@ params.max_hours = 4
 
 // First, obtain basic info, including method names and grid IDs
 process obtain_basic_info {
+  memory '2GB'
+  time '15m'
+
   input:
   path simulatr_specifier_fp from params.simulatr_specifier_fp
 
@@ -25,6 +28,9 @@ method_names_raw_ch.splitText().map{it.trim()}.into{ method_names_benchmark_ch; 
 grid_rows_raw_ch.splitText().map{it.trim()}.into{ grid_rows_benchmark_ch; grid_rows_ch }
 
 process generate_data_benchmark {
+  memory '4GB'
+  time '1h'
+
   input:
   val grid_row from grid_rows_benchmark_ch
   path simulatr_specifier_fp from params.simulatr_specifier_fp
@@ -42,6 +48,9 @@ data_req_ch = data_req_raw_ch.collect()
 method_cross_data_benchmark_ch = data_benchmark_ch.transpose().combine(method_names_benchmark_ch)
 
 process run_method_benchmark {
+  memory '4GB'
+  time '1h'
+
   tag "method: $method; grid row: $grid_row"
 
   input:
@@ -59,6 +68,9 @@ process run_method_benchmark {
 method_req_ch = method_req_raw_ch.collect()
 
 process add_n_processors {
+  memory '2GB'
+  time '15m'
+
   publishDir params.result_dir, mode: "copy", pattern: '*_benchmarking.rds'
 
   input:
@@ -79,12 +91,16 @@ process add_n_processors {
 
 // Second, generate the data across different processors
 process generate_data {
+  memory "$params.max_gb GB"
+  time "$params.max_hours h"
+  tag "grid row: $grid_row"
+
   input:
-  val i from grid_rows_ch
+  val grid_row from grid_rows_ch
   path simulatr_specifier_fp from new_simspec_ch
 
   output:
-  tuple val(i), path('data_list_*') into data_ch
+  tuple val(grid_row), path('data_list_*') into data_ch
 
   """
   generate_data.R $simulatr_specifier_fp $i $params.B
@@ -96,6 +112,9 @@ method_cross_data_ch = data_ch.transpose().combine(method_names_ch)
 
 // Fourth, run invoke the methods on the data
 process run_method {
+  memory "$params.max_gb GB"
+  time "$params.max_hours h"
+
   tag "method: $method; grid row: $grid_row"
 
   input:
@@ -112,6 +131,9 @@ process run_method {
 
 // Fifth combine results
 process combine_results {
+  memory '2GB'
+  time '15m'
+
   publishDir params.result_dir, mode: "copy"
 
   output:

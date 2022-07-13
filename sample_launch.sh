@@ -1,8 +1,7 @@
-simspec_filename="/Users/ekatsevi/data/projects/symcrt/private/spec_objects/debug/sim_spec_gaussian_supervised_alternative.rds"
-# simspec_filename="/Users/ekatsevi/data/projects/symcrt/private/spec_objects/v1/sim_spec_binomial_semi_supervised_null/sim_spec_binomial_semi_supervised_null.rds"
-output_dir="/Users/ekatsevi/Desktop"
+source ~/.research_config
+simspec_filename=$LOCAL_SYMCRT_DATA_DIR/private/spec_objects/debug/sim_spec_gaussian_supervised_alternative.rds
+output_dir=$LOCAL_SYMCRT_DATA_DIR/private/output/debug/
 nextflow run main.nf \
     --simulatr_specifier_fp $simspec_filename \
     --result_dir $output_dir \
-    --B 40000 \
-    -resume
+    --B 5

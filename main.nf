@@ -103,7 +103,7 @@ process generate_data {
   tuple val(grid_row), path('data_list_*') into data_ch
 
   """
-  generate_data.R $simulatr_specifier_fp $i $params.B
+  generate_data.R $simulatr_specifier_fp $grid_row $params.B
   """
 }
 

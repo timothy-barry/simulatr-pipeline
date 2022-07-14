@@ -30,6 +30,8 @@ grid_rows_raw_ch.splitText().map{it.trim()}.into{ grid_rows_benchmark_ch; grid_r
 process generate_data_benchmark {
   memory '4GB'
   time '1h'
+  
+  tag "grid row: $grid_row"
 
   input:
   val grid_row from grid_rows_benchmark_ch

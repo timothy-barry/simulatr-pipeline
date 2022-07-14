@@ -25,7 +25,13 @@ if (data_generator@loop) {
 
 # split data_list into n_processors equally sized chunks
 n_processors <- min(get_param_from_simulatr_spec(simulatr_spec, row_idx, "n_processors"), length(data_list))
-cuts <- cut(seq(1, length(data_list)), n_processors)
+
+if (n_processors > 1) {
+  cuts <- cut(seq(1, length(data_list)), n_processors)
+} else {
+  cuts <- factor(rep("all_data", length(data_list)))
+}
+
 l_cuts <- levels(cuts)
 for (i in seq(1, n_processors)) {
   to_save_data <- data_list[cuts == l_cuts[i]]

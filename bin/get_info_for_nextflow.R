@@ -17,4 +17,4 @@ write_vector <- function(file_name, vector) {
 }
 
 write_vector("method_names.txt", method_names)
-write_vector("grid_ids.txt", grid_ids)
+write_vector("grid_rows.txt", grid_ids)

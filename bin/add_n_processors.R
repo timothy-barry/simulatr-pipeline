@@ -59,7 +59,7 @@ new_simulatr_spec@parameter_grid <- new_parameter_grid
 new_simulatr_spec@fixed_parameters$n_processors = NULL
 
 # save the new simulatr specifier object
-sim_string <- sub('\\.rds$', '', simulatr_spec_name)
+sim_string <- sub('sim_spec_', '', sub('\\.rds', '', simulatr_spec_name))
 # saveRDS(new_simulatr_spec, paste0(sim_string, "_checked.rds"))
 saveRDS(new_simulatr_spec, "new_simspec_obj.rds")
 

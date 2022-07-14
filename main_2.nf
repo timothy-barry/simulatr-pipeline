@@ -99,8 +99,8 @@ workflow run_simulation_on_chunk {
     generate_data(grid_ids_ch, params.simulatr_specifier_fp)
 
     // 3. Create the channel to pass to the methods process
-    flat_data_ch = generate_data.out.data_ch.flatMap{my_spread(it)}
-    method_cross_data_ch = flat_data_ch.combine(method_names_ch)
+    method_cross_data_ch = generate_data.out.data_ch.transpose().combine(method_names_ch)
+
 
     // 4. Run the methods on the data
     run_method(method_cross_data_ch, params.simulatr_specifier_fp)

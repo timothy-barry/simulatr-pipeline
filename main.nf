@@ -143,23 +143,9 @@ process combine_results {
 
   input:
   file 'raw_result' from raw_results_ch.collect()
+  path simulatr_specifier_fp from new_simspec_ch
 
   """
-  collect_results.R $params.result_file_name raw_result*
-  """
-}
-
-
-/*
-// Fifth, delete the data lists
-process delete_work_files {
-  echo true
-
-  input:
-  val "flag" from flag_ch
-
-  """
-  find $workflow.workDir -name "data_list_*" -delete
+  collect_results.R $simulatr_specifier_fp $params.result_file_name raw_result*
   """
 }
-*/

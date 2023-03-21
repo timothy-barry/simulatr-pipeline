@@ -5,8 +5,6 @@ params.B_check = 5
 params.max_gb = 8
 params.max_hours = 4
 
-println params.simulatr_specifier_fp
-
 // First, obtain basic info, including method names and grid IDs
 process obtain_basic_info {
   memory '2GB'

@@ -16,6 +16,8 @@ simulatr_spec <- out$simulatr_spec
 ordered_args <- out$ordered_args
 B <- out$simulatr_spec@fixed_parameters$B
 
+methods <- simulatr_spec@run_method_functions |> names()
+
 # split data_list into n_processors equally sized chunks
 n_processors <- get_param_from_simulatr_spec(simulatr_spec, row_idx, "n_processors")
 if(n_processors > 1){
@@ -35,13 +37,20 @@ for (i in seq(1, n_processors)) {
     ordered_args_i[which(data_generator@arg_names == "B")] <- B_i
     data_list <- do.call(data_generator@f, ordered_args_i)
   }
-
-  # save data object
-  to_save_object <- list(data_list = data_list, row_idx = row_idx, proc_id = i)
-  to_save_fp <- paste0("data_list_", i)
-  saveRDS(to_save_object, to_save_fp)
-
-  # clear memory
-  rm(to_save_object, data_list)
-  gc()
+  
+  for(method in methods){
+    # save data object
+    to_save_object <- list(data_list = data_list, 
+                           method = method, 
+                           row_idx = row_idx, 
+                           proc_id = i)
+    to_save_fp <- paste0("data_list_", i, "_", method)
+    saveRDS(to_save_object, to_save_fp)
+    
+    # clear memory
+    rm(to_save_object, data_list)
+  }
 }
+
+# garbage collect
+gc()

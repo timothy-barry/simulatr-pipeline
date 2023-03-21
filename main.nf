@@ -7,17 +7,22 @@ params.max_hours = 4
 
 // First, obtain basic info, including method names and grid IDs
 process obtain_basic_info {
+  debug true
+
   memory '2GB'
   time '15m'
 
   output:
   path "method_names.txt" into method_names_raw_ch
   path "grid_rows.txt" into grid_rows_raw_ch
-
+  
   """
+  Rscript -e 'cat(paste0(.libPaths(), collapse = ":"))'
   get_info_for_nextflow.R $params.simulatr_specifier_fp
   """
 }
+
+
 
 method_names_ch = method_names_raw_ch.splitText().map{it.trim()}
 grid_rows_ch = grid_rows_raw_ch.splitText().map{it.trim()}

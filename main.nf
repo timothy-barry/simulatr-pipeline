@@ -1,4 +1,5 @@
 // The optional parameters
+params.result_dir = "."
 params.result_file_name = "simulatr_result.rds"
 params.B = 0
 params.B_check = 5

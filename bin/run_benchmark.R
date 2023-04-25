@@ -69,7 +69,8 @@ method_seconds_per_rep <- method_seconds / B_check
 B <- if (B_in != 0) B_in else simulatr_spec@fixed_parameters$B
 gb_per_rep <- (data_bytes_per_rep + method_bytes_per_rep) / 1e9
 hrs_per_rep <- (data_seconds_per_rep + method_seconds_per_rep) / (60 * 60)
-n_processors <- max(ceiling(B * hrs_per_rep / max_hours), ceiling(B * gb_per_rep / max_gb))
+n_processors <- max(ceiling(B * hrs_per_rep / (1.2 * max_hours)), 
+                    ceiling(B * gb_per_rep / (1.2 * max_gb)))
 
 # write benchmarking information
 benchmarking_info <- data.frame(method = method, 

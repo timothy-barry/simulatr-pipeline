@@ -45,32 +45,37 @@ data_seconds_per_rep <- data_seconds / B_check
 
 # benchmark method application
 method_bytes <- pryr::mem_change(
-  method_seconds <- system.time(
     if (method_object@loop) {
       result_list <- vector(mode = "list", length = B_check)
+      method_seconds <- vector(mode = "numeric", length = B_check)
       for (b in 1:B_check) {
         curr_df <- data_list[[b]]
         ordered_args_method[[1]] <- curr_df
-        out <- R.utils::withSeed(do.call(method_object@f, ordered_args_method), seed = seed)
+        method_seconds[b] <- system.time(
+          out <- R.utils::withSeed(do.call(method_object@f, ordered_args_method), 
+                                   seed = seed)
+        )[["elapsed"]]
         out$run_id <- b
         result_list[[b]] <- out
       }
       result_df <- do.call(rbind, result_list)
+      method_seconds_per_rep <- max(method_seconds)
     } else {
       ordered_args[[1]] <- data_list
+      method_seconds_total <- system.time(
       result_df <- do.call(method_object@f, ordered_args_method)
+      )[["elapsed"]]
+      method_seconds_per_rep <- method_seconds_total / B_check
     }
-  )[["elapsed"]]
 ) |> as.numeric()
 method_bytes_per_rep <- method_bytes / B_check
-method_seconds_per_rep <- method_seconds / B_check
 
 # compute the number of processors needed
 B <- if (B_in != 0) B_in else simulatr_spec@fixed_parameters$B
 gb_per_rep <- (data_bytes_per_rep + method_bytes_per_rep) / 1e9
 hrs_per_rep <- (data_seconds_per_rep + method_seconds_per_rep) / (60 * 60)
-n_processors <- max(ceiling(B * hrs_per_rep / (1.2 * max_hours)), 
-                    ceiling(B * gb_per_rep / (1.2 * max_gb)))
+n_processors <- max(ceiling(B * hrs_per_rep / (1.25 * max_hours)), 
+                    ceiling(B * gb_per_rep / (1.25 * max_gb)))
 
 # write benchmarking information
 benchmarking_info <- data.frame(method = method, 

@@ -8,8 +8,6 @@ params.max_hours = 4
 
 // First, obtain basic info, including method names and grid IDs
 process obtain_basic_info {
-  debug true
-
   memory '2GB'
   time '15m'
 
@@ -18,12 +16,9 @@ process obtain_basic_info {
   path "grid_rows.txt" into grid_rows_raw_ch
   
   """
-  Rscript -e 'cat(paste0(.libPaths(), collapse = ":"))'
   get_info_for_nextflow.R $params.simulatr_specifier_fp
   """
 }
-
-
 
 method_names_ch = method_names_raw_ch.splitText().map{it.trim()}
 grid_rows_ch = grid_rows_raw_ch.splitText().map{it.trim()}
@@ -32,7 +27,7 @@ method_cross_grid_row_ch = method_names_ch.combine(grid_rows_ch)
 // Second, benchmark time and memory for each method on each grid row
 process run_benchmark {
   memory '4GB'
-  time '1h'
+  time '2h'
   
   tag "method: $method; grid row: $grid_row"
 
@@ -83,11 +78,4 @@ process evaluate_methods {
   """
   run_evaluation.R $params.simulatr_specifier_fp $params.result_file_name chunk_result* benchmarking_info*
   """
-
-  // output:
-  // stdout result
-
-  // """
-  // echo $params.simulatr_specifier_fp $params.result_file_name chunk_result* benchmarking_info*
-  // """
 }

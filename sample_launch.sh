@@ -8,5 +8,4 @@ nextflow run main.nf \
     --result_file_name $result_filename \
     --B_check 2 \
     --B 20 \
-    --max_gb 0.5 \
-    -resume
+    --max_gb 0.5

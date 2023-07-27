@@ -41,7 +41,7 @@ if (length(simulatr_spec@evaluation_functions) > 0) {
   }) |>
     data.table::rbindlist() |>
     dplyr::group_by(grid_id, method, metric) |>
-    dplyr::summarise(mean = mean(value), se = sd(value) / sqrt(dplyr::n()), .groups = "drop") |>
+    dplyr::summarise(mean = mean(value), se = sd(x = value, na.rm = TRUE)/sum(!is.na(value)), .groups = "drop") |>
     dplyr::bind_rows(benchmarking_info |>
       tidyr::pivot_longer(c(gb_per_rep, hrs_per_rep, n_processors),
         names_to = "metric",

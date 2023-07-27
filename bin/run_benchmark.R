@@ -36,7 +36,7 @@ data_bytes <- pryr::mem_change(
         }
       )
     } else {
-      data_list <- do.call(data_generator@f, ordered_args)
+      data_list <- do.call(data_generator@f, ordered_args_data_gen)
     }
   )[["elapsed"]]
 ) |> as.numeric()

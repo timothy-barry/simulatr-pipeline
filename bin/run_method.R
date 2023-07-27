@@ -28,8 +28,8 @@ if (method_object@loop) {
   for (i in seq(1, length(data_list))) {
     curr_df <- data_list[[i]]
     ordered_args[[1]] <- curr_df
-    out <- do.call(method_object@f, ordered_args)
-    out$run_id <- i
+    out <- dplyr::tibble(output = list(do.call(method_object@f, ordered_args)),
+                          run_id = i)
     result_list[[i]] <- out
   }
   result_df <- do.call(rbind, result_list)

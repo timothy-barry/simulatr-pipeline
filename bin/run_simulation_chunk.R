@@ -17,7 +17,7 @@ ordered_args_data_gen <- get_ordered_args(data_generator, simulatr_spec, row_idx
 
 # extract the method object and its ordered arguments
 method_object <- simulatr_spec@run_method_functions[[method]]
-ordered_args_method <- get_ordered_args(method_object, simulatr_spec, row_idx)
+ordered_args_method <- c(list(NA), get_ordered_args(method_object, simulatr_spec, row_idx))
 
 # extract the seed
 seed <- simulatr_spec@fixed_parameters$seed
@@ -37,8 +37,7 @@ if (data_generator@loop) {
     }
   )
 } else {
-#  data_list <- do.call(data_generator@f, ordered_args)
-  stop("Data generation with loop = FALSE not yet implemented")
+  data_list <- do.call(data_generator@f, ordered_args)
 }
 
 # method application
@@ -53,9 +52,8 @@ if (method_object@loop) {
   }
   result_df <- do.call(rbind, result_list)
 } else {
-  # warning: setting the seed this way will not yield consistent results
   ordered_args[[1]] <- data_list
-  result_df <- R.utils::withSeed(do.call(method_object@f, ordered_args_method), seed = seed)
+  result_df <- do.call(method_object@f, ordered_args)
 }
 
 # save result

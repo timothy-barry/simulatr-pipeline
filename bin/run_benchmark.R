@@ -18,7 +18,7 @@ ordered_args_data_gen <- get_ordered_args(data_generator, simulatr_spec, row_idx
 
 # extract the method object and its ordered arguments
 method_object <- simulatr_spec@run_method_functions[[method]]
-ordered_args_method <- get_ordered_args(method_object, simulatr_spec, row_idx)
+ordered_args_method <- c(list(NA), get_ordered_args(method_object, simulatr_spec, row_idx))
 
 # extract the seed
 seed <- simulatr_spec@fixed_parameters$seed
@@ -61,7 +61,7 @@ method_bytes <- pryr::mem_change(
       result_df <- do.call(rbind, result_list)
       method_seconds_per_rep <- max(method_seconds)
     } else {
-      ordered_args[[1]] <- data_list
+      ordered_args_method[[1]] <- data_list
       method_seconds_total <- system.time(
       result_df <- do.call(method_object@f, ordered_args_method)
       )[["elapsed"]]

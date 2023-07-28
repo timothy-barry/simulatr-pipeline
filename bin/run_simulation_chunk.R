@@ -37,7 +37,7 @@ if (data_generator@loop) {
     }
   )
 } else {
-  data_list <- do.call(data_generator@f, ordered_args)
+  data_list <- do.call(data_generator@f, ordered_args_data_gen)
 }
 
 # method application
@@ -52,8 +52,8 @@ if (method_object@loop) {
   }
   result_df <- do.call(rbind, result_list)
 } else {
-  ordered_args[[1]] <- data_list
-  result_df <- do.call(method_object@f, ordered_args)
+  ordered_args_method[[1]] <- data_list
+  result_df <- do.call(method_object@f, ordered_args_method)
 }
 
 # save result

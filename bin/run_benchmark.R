@@ -14,28 +14,30 @@ max_hours <- as.numeric(args[7])
 
 # extract data generator and its ordered arguments
 data_generator <- simulatr_spec@generate_data_function
-ordered_args_data_gen <- get_ordered_args(data_generator, simulatr_spec, row_idx)
 
 # extract the method object and its ordered arguments
 method_object <- simulatr_spec@run_method_functions[[method]]
 ordered_args_method <- c(list(NA), get_ordered_args(method_object, simulatr_spec, row_idx))
 
-# extract the seed
+# extract the seed (OK if duplicated across processes)
 seed <- simulatr_spec@fixed_parameters$seed
+set.seed(seed)
 
 # benchmark data generation
 invisible(gc())
 data_bytes <- pryr::mem_change(
   data_seconds <- system.time(
     if (data_generator@loop) {
+      ordered_args_data_gen <- get_ordered_args(data_generator, simulatr_spec, row_idx)
       data_list <- lapply(
         1:B_check,
         function(b) {
-          R.utils::withSeed(do.call(data_generator@f, ordered_args_data_gen),
-                            seed = seed + b)
+          do.call(data_generator@f, ordered_args_data_gen)
         }
       )
     } else {
+      simulatr_spec@fixed_parameters$B <- B_check
+      ordered_args_data_gen <- get_ordered_args(data_generator, simulatr_spec, row_idx)
       data_list <- do.call(data_generator@f, ordered_args_data_gen)
     }
   )[["elapsed"]]
@@ -61,6 +63,7 @@ method_bytes <- pryr::mem_change(
       result_df <- do.call(rbind, result_list)
       method_seconds_per_rep <- max(method_seconds)
     } else {
+      stop("Method loop not yet implemented.")
       ordered_args_method[[1]] <- data_list
       method_seconds_total <- system.time(
       result_df <- do.call(method_object@f, ordered_args_method)

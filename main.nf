@@ -24,16 +24,18 @@ method_names_ch = method_names_raw_ch.splitText().map{it.trim()}
 grid_rows_ch = grid_rows_raw_ch.splitText().map{it.trim()}
 method_cross_grid_row_ch = method_names_ch.combine(grid_rows_ch)
 
+
 // Second, benchmark time and memory for each method on each grid row
 process run_benchmark {
   memory '4GB'
   time '2h'
+  debug true
   
   tag "method: $method; grid row: $grid_row"
 
   input:
   tuple val(method), val(grid_row) from method_cross_grid_row_ch
-
+  
   output:
   path 'proc_id_info.csv' into proc_id_info_ch
   path 'benchmarking_info.rds' into benchmarking_info_ch
@@ -43,12 +45,13 @@ process run_benchmark {
   """
 }
 
+
 // Third, run each chunk of the simulation (apply a method to some number of realizations from a grid row)
 process run_simulation_chunk {
   memory "$params.max_gb GB"
   time "$params.max_hours h"
-
   tag "method: $method; grid row: $grid_row; processor: $proc_id"
+  debug true
 
   input:
   tuple val(method), val(grid_row), val(proc_id), val(n_processors) from proc_id_info_ch.splitCsv()
@@ -61,11 +64,13 @@ process run_simulation_chunk {
   """
 }
 
+
 // Fourth, collect the results and evaluate metrics
 process evaluate_methods {
   memory '16GB'
   time '15m'
-
+  debug true
+  
   publishDir params.result_dir, mode: "copy"
 
   input:

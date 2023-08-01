@@ -4,7 +4,7 @@ params.result_file_name = "simulatr_result.rds"
 params.B = 0
 params.B_check = 5
 params.max_gb = 8
-params.max_hours = 4
+params.max_hours = 4 // NOT USED: NOW HARDCODED
 
 // First, obtain basic info, including method names and grid IDs
 process obtain_basic_info {
@@ -48,8 +48,10 @@ process run_benchmark {
 
 // Third, run each chunk of the simulation (apply a method to some number of realizations from a grid row)
 process run_simulation_chunk {
+  errorStrategy 'retry'
   memory "$params.max_gb GB"
-  time "$params.max_hours h"
+  time { 4.hour * task.attempt }
+  
   tag "method: $method; grid row: $grid_row; processor: $proc_id"
   debug true
 

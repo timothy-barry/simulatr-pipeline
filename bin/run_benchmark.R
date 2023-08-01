@@ -36,8 +36,9 @@ data_bytes <- pryr::mem_change(
         }
       )
     } else {
-      simulatr_spec@fixed_parameters$B <- B_check
-      ordered_args_data_gen <- get_ordered_args(data_generator, simulatr_spec, row_idx)
+      simulatr_spec_modb <- simulatr_spec
+      simulatr_spec_modb@fixed_parameters$B <- B_check
+      ordered_args_data_gen <- get_ordered_args(data_generator, simulatr_spec_modb, row_idx)
       data_list <- do.call(data_generator@f, ordered_args_data_gen)
     }
   )[["elapsed"]]
@@ -54,8 +55,7 @@ method_bytes <- pryr::mem_change(
         curr_df <- data_list[[b]]
         ordered_args_method[[1]] <- curr_df
         method_seconds[b] <- system.time(
-          out <- R.utils::withSeed(do.call(method_object@f, ordered_args_method), 
-                                   seed = seed)
+        out <- do.call(method_object@f, ordered_args_method)
         )[["elapsed"]]
         out$run_id <- b
         result_list[[b]] <- out

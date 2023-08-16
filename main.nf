@@ -63,7 +63,7 @@ process run_simulation_chunk {
 
 // Fourth, collect the results and evaluate metrics
 process evaluate_methods {
-  memory '120GB'
+  memory '6GB'
   time '15m'
 
   publishDir params.result_dir, mode: "copy"

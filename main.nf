@@ -70,7 +70,8 @@ process evaluate_methods {
   errorStrategy { task.exitStatus == 137 ? 'retry' : 'terminate' }
 
   // Double the memory each time the task is retried
-  memory { Math.pow(2, task.attempt - 1).toInteger() * '6GB' }
+  memory { (Math.pow(2, task.attempt - 1) * 6).toInteger() + 'GB' }
+
 
   time '15m'
 

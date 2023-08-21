@@ -63,7 +63,15 @@ process run_simulation_chunk {
 
 // Fourth, collect the results and evaluate metrics
 process evaluate_methods {
-  memory '6GB'
+  // Retry the task up to 3 times if it fails
+  maxRetries 3
+
+  // Define the error strategy
+  errorStrategy { task.exitStatus == 137 ? 'retry' : 'terminate' }
+
+  // Double the memory each time the task is retried
+  memory { Math.pow(2, task.attempt - 1).toInteger() * '6GB' }
+
   time '15m'
 
   publishDir params.result_dir, mode: "copy"

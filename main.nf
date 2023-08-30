@@ -71,9 +71,9 @@ process evaluate_methods {
 
   // Double the memory each time the task is retried
   memory { (Math.pow(2, task.attempt - 1) * 6).toInteger() + 'GB' }
-
-
-  time '15m'
+  
+  // Double the time each time the task is retried
+  time { (Math.pow(2, task.attempt - 1) * 15).toInteger() + 'm' }
 
   publishDir params.result_dir, mode: "copy"
 

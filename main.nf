@@ -63,8 +63,8 @@ process run_simulation_chunk {
 
 // Fourth, collect the results and evaluate metrics
 process evaluate_methods {
-  // Retry the task up to 3 times if it fails
-  maxRetries 3
+  // Retry the task up to 6 times if it fails
+  maxRetries 6
 
   // Define the error strategy
   errorStrategy { task.exitStatus == 137 ? 'retry' : 'terminate' }

@@ -83,11 +83,16 @@ benchmarking_info <- data.frame(method = method,
                                 gb_per_rep = method_bytes_per_rep / 1e9, 
                                 hrs_per_rep = method_seconds_per_rep / (60*60), 
                                 n_processors = n_processors)
-saveRDS(benchmarking_info, "benchmarking_info.rds")
+benchmarking_info_filename <- sprintf("benchmarking_info_%s_%d.rds", 
+                           method, row_idx)
+saveRDS(benchmarking_info, benchmarking_info_filename)
 
 # write processors information
 proc_id_info <- data.frame(method = method, 
                            grid_id = row_idx, 
                            proc_id = 1:n_processors, 
                            n_processors = n_processors)
-write.table(proc_id_info, file = "proc_id_info.csv", col.names = FALSE, row.names = FALSE, sep = ",")
+proc_id_info_filename <- sprintf("proc_id_info_%s_%d.csv", 
+                           method, row_idx)
+write.table(proc_id_info, file = proc_id_info_filename, 
+            col.names = FALSE, row.names = FALSE, quote = FALSE, sep = ",")

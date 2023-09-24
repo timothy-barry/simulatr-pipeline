@@ -60,4 +60,6 @@ if (method_object@loop) {
 
 # save result
 to_save <- collate_result_list(result_df, proc_id, row_idx, method)
-saveRDS(to_save, "chunk_result.rds")
+output_filename <- sprintf("chunk_result_%s_%d_%d.rds", 
+                           method, row_idx, proc_id)
+saveRDS(to_save, output_filename)

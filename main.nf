@@ -35,8 +35,8 @@ process run_benchmark {
   tuple val(method), val(grid_row) from method_cross_grid_row_ch
 
   output:
-  path 'proc_id_info.csv' into proc_id_info_ch
-  path 'benchmarking_info.rds' into benchmarking_info_ch
+  path "proc_id_info_${method}_${grid_row}.csv" into proc_id_info_ch
+  path "benchmarking_info_${method}_${grid_row}.rds" into benchmarking_info_ch
 
   """
   run_benchmark.R $params.simulatr_specifier_fp $method $grid_row $params.B_check $params.B $params.max_gb $params.max_hours
@@ -54,7 +54,7 @@ process run_simulation_chunk {
   tuple val(method), val(grid_row), val(proc_id), val(n_processors) from proc_id_info_ch.splitCsv()
 
   output:
-  path 'chunk_result.rds' into results_ch
+  path "chunk_result_${method}_${grid_row}_${proc_id}.rds" into results_ch
 
   """
   run_simulation_chunk.R $params.simulatr_specifier_fp $method $grid_row $proc_id $n_processors $params.B

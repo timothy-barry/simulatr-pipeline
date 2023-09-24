@@ -1,4 +1,4 @@
-// The optional parameters
+// Define parameters
 params.result_dir = "."
 params.result_file_name = "simulatr_result.rds"
 params.B = 0
@@ -6,85 +6,88 @@ params.B_check = 5
 params.max_gb = 8
 params.max_hours = 4
 
-// First, obtain basic info, including method names and grid IDs
+// Define processes
+
 process obtain_basic_info {
-  memory '2GB'
-  time '15m'
+    tag "get_info"
+    memory '2GB'
+    time '15m'
 
-  output:
-  path "method_names.txt" into method_names_raw_ch
-  path "grid_rows.txt" into grid_rows_raw_ch
-  
-  """
-  get_info_for_nextflow.R $params.simulatr_specifier_fp
-  """
+    output:
+    path "method_names.txt", emit: method_names_raw
+    path "grid_rows.txt", emit: grid_rows_raw
+
+    script:
+    """
+    get_info_for_nextflow.R $params.simulatr_specifier_fp
+    """
 }
 
-method_names_ch = method_names_raw_ch.splitText().map{it.trim()}
-grid_rows_ch = grid_rows_raw_ch.splitText().map{it.trim()}
-method_cross_grid_row_ch = method_names_ch.combine(grid_rows_ch)
-
-// Second, benchmark time and memory for each method on each grid row
 process run_benchmark {
-  memory '4GB'
-  time '2h'
-  
-  tag "method: $method; grid row: $grid_row"
+    tag "method: $method; grid row: $grid_row"
+    memory '4GB'
+    time '2h'
 
-  input:
-  tuple val(method), val(grid_row) from method_cross_grid_row_ch
+    input:
+    tuple val(method), val(grid_row)
 
-  output:
-  path "proc_id_info_${method}_${grid_row}.csv" into proc_id_info_ch
-  path "benchmarking_info_${method}_${grid_row}.rds" into benchmarking_info_ch
+    output:
+    path "proc_id_info_${method}_${grid_row}.csv", emit: proc_id_info
+    path "benchmarking_info_${method}_${grid_row}.rds", emit: benchmarking_info
 
-  """
-  run_benchmark.R $params.simulatr_specifier_fp $method $grid_row $params.B_check $params.B $params.max_gb $params.max_hours
-  """
+    script:
+    """
+    run_benchmark.R $params.simulatr_specifier_fp $method $grid_row $params.B_check $params.B $params.max_gb $params.max_hours
+    """
 }
 
-// Third, run each chunk of the simulation (apply a method to some number of realizations from a grid row)
 process run_simulation_chunk {
-  memory "$params.max_gb GB"
-  time "$params.max_hours h"
+    tag "method: $method; grid row: $grid_row; processor: $proc_id"
+    memory "$params.max_gb GB"
+    time "$params.max_hours h"
 
-  tag "method: $method; grid row: $grid_row; processor: $proc_id"
+    input:
+    tuple val(method), val(grid_row), val(proc_id), val(n_processors)
 
-  input:
-  tuple val(method), val(grid_row), val(proc_id), val(n_processors) from proc_id_info_ch.splitCsv()
+    output:
+    path "chunk_result_${method}_${grid_row}_${proc_id}.rds", emit: chunk_result
 
-  output:
-  path "chunk_result_${method}_${grid_row}_${proc_id}.rds" into results_ch
-
-  """
-  run_simulation_chunk.R $params.simulatr_specifier_fp $method $grid_row $proc_id $n_processors $params.B
-  """
+    script:
+    """
+    run_simulation_chunk.R $params.simulatr_specifier_fp $method $grid_row $proc_id $n_processors $params.B
+    """
 }
 
-// Fourth, collect the results and evaluate metrics
 process evaluate_methods {
-  // Retry the task up to 6 times if it fails
-  maxRetries 6
+    tag "evaluate_methods"
+    maxRetries 6
+    errorStrategy { task.exitStatus == 137 ? 'retry' : 'terminate' }
+    memory { (Math.pow(2, task.attempt - 1) * 6).toInteger() + 'GB' }
+    time { (Math.pow(2, task.attempt - 1) * 15).toInteger() + 'm' }
+    publishDir params.result_dir, mode: "copy"
 
-  // Define the error strategy
-  errorStrategy { task.exitStatus == 137 ? 'retry' : 'terminate' }
+    input:
+    path chunk_result
+    path benchmarking_info
 
-  // Double the memory each time the task is retried
-  memory { (Math.pow(2, task.attempt - 1) * 6).toInteger() + 'GB' }
-  
-  // Double the time each time the task is retried
-  time { (Math.pow(2, task.attempt - 1) * 15).toInteger() + 'm' }
+    output:
+    path "$params.result_file_name", emit: final_results
 
-  publishDir params.result_dir, mode: "copy"
+    script:
+    """
+    run_evaluation.R $params.simulatr_specifier_fp $params.result_file_name chunk_result* benchmarking_info*
+    """
+}
 
-  input:
-  path 'chunk_result' from results_ch.collect()
-  path 'benchmarking_info' from benchmarking_info_ch.collect()
+// Workflow definition
 
-  output:
-  path "$params.result_file_name" into final_results_ch
+workflow {
+    obtain_basic_info()
+    method_names_ch = obtain_basic_info.out.method_names_raw.splitText().map{it.trim()}
+    grid_rows_ch = obtain_basic_info.out.grid_rows_raw.splitText().map{it.trim()}
+    method_cross_grid_row_ch = method_names_ch.combine(grid_rows_ch)
 
-  """
-  run_evaluation.R $params.simulatr_specifier_fp $params.result_file_name chunk_result* benchmarking_info*
-  """
+    run_benchmark(method_cross_grid_row_ch)
+    run_simulation_chunk(run_benchmark.out.proc_id_info.splitCsv())
+    evaluate_methods(run_simulation_chunk.out.chunk_result.collect(), run_benchmark.out.benchmarking_info.collect())
 }

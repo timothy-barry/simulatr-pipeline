@@ -70,7 +70,7 @@ process run_simulation_chunk {
 process evaluate_methods {
     tag "evaluate_methods"
     maxRetries 6
-    errorStrategy { task.exitStatus == 137 ? 'retry' : 'terminate' }
+    errorStrategy 'retry'
     memory { (Math.pow(2, task.attempt - 1) * 6).toInteger() + 'GB' }
     time { (Math.pow(2, task.attempt - 1) * 15).toInteger() + 'm' }
     publishDir params.result_dir, mode: "copy"

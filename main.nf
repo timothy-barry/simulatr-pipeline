@@ -25,8 +25,16 @@ process obtain_basic_info {
 
 process run_benchmark {
     tag "method: $method; grid row: $grid_row"
-    memory '4GB'
-    time '2h'
+
+    memory { 
+        def mem = 4 * Math.pow(2, task.attempt - 1)
+        return "${mem} GB"
+    }
+
+    time { 
+        def hours = 2 * Math.pow(2, task.attempt - 1)
+        return "${hours} h"
+    }
 
     input:
     tuple val(method), val(grid_row)

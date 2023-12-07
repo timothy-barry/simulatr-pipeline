@@ -25,6 +25,7 @@ process obtain_basic_info {
 
 process run_benchmark {
     tag "method: $method; grid row: $grid_row"
+    errorStrategy 'retry'
 
     memory { 
         def mem = 4 * Math.pow(2, task.attempt - 1)

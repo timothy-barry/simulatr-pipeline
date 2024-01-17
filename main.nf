@@ -33,7 +33,7 @@ process run_benchmark {
     }
 
     time { 
-        def hours = 2 * Math.pow(2, task.attempt - 1)
+        def hours = 3 * Math.pow(2, task.attempt - 1)
         return "${hours} h"
     }
 

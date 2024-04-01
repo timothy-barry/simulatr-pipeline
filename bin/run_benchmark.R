@@ -52,7 +52,7 @@ method_bytes <- pryr::mem_change(
         curr_df <- data_list[[b]]
         ordered_args_method[[1]] <- curr_df
         method_seconds[b] <- system.time(
-          out <- R.utils::withSeed(do.call(method_object@f, ordered_args_method), 
+          out <- R.utils::withSeed(do.call(method_object@f, ordered_args_method),
                                    seed = seed)
         )[["elapsed"]]
         out$run_id <- b
@@ -74,25 +74,25 @@ method_bytes_per_rep <- method_bytes / B_check
 B <- if (B_in != 0) B_in else simulatr_spec@fixed_parameters$B
 gb_per_rep <- (data_bytes_per_rep + method_bytes_per_rep) / 1e9
 hrs_per_rep <- (data_seconds_per_rep + method_seconds_per_rep) / (60 * 60)
-n_processors <- max(ceiling(B * hrs_per_rep / (0.9 * max_hours)), 
-                    ceiling(B * gb_per_rep / (0.9 * max_gb)))
+n_processors <- max(ceiling(B * hrs_per_rep / (0.8 * max_hours)),
+                    ceiling(B * gb_per_rep / (0.8 * max_gb)))
 
 # write benchmarking information
-benchmarking_info <- data.frame(method = method, 
-                                grid_id = row_idx, 
-                                gb_per_rep = method_bytes_per_rep / 1e9, 
-                                hrs_per_rep = method_seconds_per_rep / (60*60), 
+benchmarking_info <- data.frame(method = method,
+                                grid_id = row_idx,
+                                gb_per_rep = method_bytes_per_rep / 1e9,
+                                hrs_per_rep = method_seconds_per_rep / (60*60),
                                 n_processors = n_processors)
-benchmarking_info_filename <- sprintf("benchmarking_info_%s_%d.rds", 
+benchmarking_info_filename <- sprintf("benchmarking_info_%s_%d.rds",
                            method, row_idx)
 saveRDS(benchmarking_info, benchmarking_info_filename)
 
 # write processors information
-proc_id_info <- data.frame(method = method, 
-                           grid_id = row_idx, 
-                           proc_id = 1:n_processors, 
+proc_id_info <- data.frame(method = method,
+                           grid_id = row_idx,
+                           proc_id = 1:n_processors,
                            n_processors = n_processors)
-proc_id_info_filename <- sprintf("proc_id_info_%s_%d.csv", 
+proc_id_info_filename <- sprintf("proc_id_info_%s_%d.csv",
                            method, row_idx)
-write.table(proc_id_info, file = proc_id_info_filename, 
+write.table(proc_id_info, file = proc_id_info_filename,
             col.names = FALSE, row.names = FALSE, quote = FALSE, sep = ",")

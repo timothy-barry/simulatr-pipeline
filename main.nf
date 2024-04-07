@@ -28,7 +28,7 @@ process run_benchmark {
     errorStrategy 'retry'
 
     memory { 
-        def mem = 4 * Math.pow(2, task.attempt - 1)
+        def mem = 12 * Math.pow(2, task.attempt - 1)
         return "${mem} GB"
     }
 

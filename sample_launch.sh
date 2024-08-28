@@ -1,4 +1,3 @@
-source ~/.research_config
 simspec_filename=$(pwd)/sim_spec_obj.rds
 output_dir=$(pwd)
 result_filename=test_result.rds

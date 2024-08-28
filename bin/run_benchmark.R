@@ -11,6 +11,8 @@ B_check <- as.integer(args[4])
 B_in <- as.integer(args[5])
 max_gb <- as.numeric(args[6])
 max_hours <- as.numeric(args[7])
+mem_fudge_factor <- as.numeric(args[8])
+time_fudge_factor <- as.numeric(args[9])
 
 # extract data generator and its ordered arguments
 data_generator <- simulatr_spec@generate_data_function
@@ -64,7 +66,6 @@ method_bytes <- pryr::mem_change(
       result_df <- do.call(rbind, result_list)
       method_seconds_per_rep <- max(method_seconds)
     } else {
-      stop("Method loop not yet implemented.")
       ordered_args_method[[1]] <- data_list
       method_seconds_total <- system.time(
       result_df <- do.call(method_object@f, ordered_args_method)
@@ -78,8 +79,8 @@ method_bytes_per_rep <- method_bytes / B_check
 B <- if (B_in != 0) B_in else simulatr_spec@fixed_parameters$B
 gb_per_rep <- (data_bytes_per_rep + method_bytes_per_rep) / 1e9
 hrs_per_rep <- (data_seconds_per_rep + method_seconds_per_rep) / (60 * 60)
-n_processors <- max(ceiling(B * hrs_per_rep / (0.8 * max_hours)),
-                    ceiling(B * gb_per_rep / (0.8 * max_gb)))
+n_processors <- max(ceiling(B * hrs_per_rep / (time_fudge_factor * max_hours)),
+                    ceiling(B * gb_per_rep / (mem_fudge_factor * max_gb)))
 
 # write benchmarking information
 benchmarking_info <- data.frame(method = method,

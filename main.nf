@@ -54,7 +54,7 @@ process run_benchmark {
 process run_simulation_chunk {
     tag "method: $method; grid row: $grid_row; processor: $proc_id"
     errorStrategy 'retry'
-    maxRetries 6
+    maxRetries 2
     memory { 
         def mem = params.max_gb * Math.pow(2, task.attempt - 1)
         return "${mem} GB"
@@ -79,7 +79,7 @@ process run_simulation_chunk {
 
 process evaluate_methods {
     tag "evaluate_methods"
-    maxRetries 6
+    maxRetries 2
     errorStrategy 'retry'
     memory { (Math.pow(2, task.attempt - 1) * 6).toInteger() + 'GB' }
     time { (Math.pow(2, task.attempt - 1) * 15).toInteger() + 'm' }
